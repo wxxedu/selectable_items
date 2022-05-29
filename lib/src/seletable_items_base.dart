@@ -50,7 +50,7 @@ extension SelectableItemsX<T> on SelectableItems<T> {
 
   /// deletes the item at the [index] if index is in range, else do nothing
   SelectableItems<T> deleteItem(int index) {
-    if (getIsSelectable(index)) {
+    if (getIsSelectable(index - 1)) {
       final List<T> lst = List.from(items);
       lst.removeAt(index);
       return copyWith(items: lst, currentIndex: index - 1);
