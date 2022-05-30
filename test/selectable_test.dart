@@ -38,10 +38,10 @@ void main() {
   group("selectItem", () {
     test("should return the second item when select 2", () {
       // Act
-      final result = selectableItems.selectItem(2);
+      final result = selectableItems.select(2);
       // Assert
       expect(result, SelectableItems(currentIndex: 2, items: [1, 2, 3, 4, 5]));
-      expect(result.currentItem, selectableItems.items[2]);
+      expect(result.selected, selectableItems.items[2]);
     });
   });
 
@@ -52,7 +52,7 @@ void main() {
       // Arrange
 
       // Act
-      final result = selectableItems.insertItem(6);
+      final result = selectableItems.insert(6);
       // Assert
       expect(
           result, SelectableItems(currentIndex: 5, items: [1, 2, 3, 4, 5, 6]));
@@ -62,7 +62,7 @@ void main() {
         "should return a new selected item with a new element inserted at the given [index] when insert at the index",
         () {
       // Act
-      final result = selectableItems.insertItem(4, atIndex: 2);
+      final result = selectableItems.insert(4, atIndex: 2);
       // Assert
       expect(
         result,
@@ -74,7 +74,7 @@ void main() {
   group("deleteItem", () {
     test("should delete the item at index when called", () {
       // Act
-      final result = selectableItems.deleteItem(2);
+      final result = selectableItems.deleteAt(2);
       // Assert
       expect(
         result,
@@ -89,18 +89,18 @@ void main() {
       final selectableItems2 =
           SelectableItems<int>(currentIndex: 0, items: [1]);
       // Act
-      final result = selectableItems.deleteItem(0);
+      final result = selectableItems.deleteAt(0);
       // Assert
       expect(result.currentIndex, -1);
-      expect(result.currentItem, null);
+      expect(result.selected, null);
     });
   });
   group('modifyItem', () {
     test("should modify the item when the item is modifiable", () {
       // Act
-      final result = selectableItems.modifyItem(0, 5);
+      final result = selectableItems.modifyAt(0, 5);
       // Assert
-      expect(result.currentItem, 5);
+      expect(result.selected, 5);
       expect(result.currentIndex, 0);
     });
   });
