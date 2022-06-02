@@ -1,7 +1,9 @@
 /// Checks if you are awesome. Spoiler: you are.
 import 'dart:collection';
 
+import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:selectable_items/selectable_items.dart';
 part 'seletable_items_base.freezed.dart';
 
 @freezed
@@ -9,81 +11,173 @@ class SelectableItems<T> with _$SelectableItems<T> {
   const factory SelectableItems({
     required int currentIndex,
     required List<T> items,
+    int? minItems,
+    int? maxItems,
   }) = _SelectableItems<T>;
 }
 
 extension SelectableItemsX<T> on SelectableItems<T> {
   /// the currently selected item
-  T? get selected => getIsSelectable(currentIndex) ? items[currentIndex] : null;
-
-  /// if the item at [index] is selectable
-  bool getIsSelectable(int index) {
-    return index >= 0 && index < items.length;
-  }
-
-  /// gets the item at [index]
-  T get(int index) {
-    return items[index];
-  }
+  Either<SeletableItemsFailure, T> get selected => isSeletable(currentIndex)
+      ? right(items[currentIndex])
+      : left(
+          SeletableItemsFailure.indexOutOfRange(currentIndex, length),
+        );
 
   /// returns the length of the items
   int get length => items.length;
 
-  /// selects the item at [index]
-  SelectableItems<T> select(int index) {
-    if (getIsSelectable(index)) {
-      return copyWith(currentIndex: index);
-    } else {
-      return this;
+  /// if the item at [index] is selectable
+  bool isSeletable(int index) {
+    return index >= 0 && index < items.length;
+  }
+
+  /// returns if the seletable items is addable
+  bool get isAddable => maxItems == null || items.length < maxItems!;
+
+  /// returns if the seletable items is removable
+  bool get isRemovable => minItems == null || items.length > minItems!;
+
+  /// if the item at [index] is selected
+  bool isSeleted(int index) {
+    return isSeletable(index) && index == currentIndex;
+  }
+
+  /// gets the item at [index]
+  Either<SeletableItemsFailure, T> get(int index) {
+    if (isSeletable(index)) {
+      return right(
+        items[index],
+      );
     }
+    return left(
+      SeletableItemsFailure.indexOutOfRange(index, length),
+    );
   }
 
-  /// adds an [item] to the items list
-  SelectableItems<T> add(T item) {
-    return copyWith(items: List.from(items)..add(item));
-  }
-
-  /// inserts the [item] at the [atIndex] if [atIndex] is given and index is valid
-  ///
-  /// else inserts the [item] at the end of the [items]
-  ///
-  /// also updates the [currentIndex] to match be the item of the newly inserted text.
-  SelectableItems<T> insert(T item, {int? atIndex}) {
-    final List<T> lst = List.from(items);
-    if (atIndex != null) {
-      lst.insert(atIndex, item);
-      return copyWith(currentIndex: atIndex, items: lst);
+  /// selects the item at [index]
+  Either<SeletableItemsFailure, SelectableItems<T>> select(int index) {
+    if (isSeletable(index)) {
+      return right(copyWith(currentIndex: index));
     } else {
-      lst.add(item);
-      return copyWith(
-        currentIndex: lst.length - 1,
-        items: lst,
+      return left(
+        SeletableItemsFailure.indexOutOfRange(index, length),
       );
     }
   }
 
-  /// deletes the item at the [index] if index is in range, else do nothing
-  SelectableItems<T> deleteAt(int index) {
-    if (getIsSelectable(index)) {
+  /// adds an [item] to the items list
+  Either<SeletableItemsFailure, SelectableItems<T>> add(T item) {
+    if (isAddable) {
+      return right(
+        copyWith(
+          items: List.from(items)..add(item),
+        ),
+      );
+    } else {
+      return left(
+        SeletableItemsFailure.reachedMaxItems(maxItems),
+      );
+    }
+  }
+
+  /// inserts the [item] at the [index] if [index] is given and index is valid
+  ///
+  /// also updates the [currentIndex] to match be the item of the newly inserted text.
+  Either<SeletableItemsFailure, SelectableItems<T>> insert(T item,
+      {int? index}) {
+    // if the list is currently full, we should return a failure
+    if (!isAddable) {
+      return left(
+        SeletableItemsFailure.reachedMaxItems(maxItems),
+      );
+    }
+
+    if (index != null) {
+      if (isSeletable(index) || index == length) {
+        // if the index is valid, we can insert the item at the index
+        final List<T> lst = List.from(items);
+        lst.insert(index, item);
+        return right(copyWith(currentIndex: index, items: lst));
+      } else {
+        // if the index is not valid, we should return a failure
+        return left(
+          SeletableItemsFailure.indexOutOfRange(index, length),
+        );
+      }
+    } else {
+      // if the index is not given, we should add the item at the end of the list
+      final List<T> lst = List.from(items);
+      lst.add(item);
+      return right(
+        copyWith(
+          currentIndex: lst.length - 1,
+          items: lst,
+        ),
+      );
+    }
+  }
+
+  /// deletes the item at the [index] if index is [isSeletable] and [isRemovable], else returns a failure
+  ///
+  /// also updates the [currentIndex] to match be the item of the newly deleted
+  Either<SeletableItemsFailure, SelectableItems<T>> remove(int index) {
+    if (!isRemovable) {
+      return left(
+        SeletableItemsFailure.reachedMinItems(maxItems),
+      );
+    }
+    if (isSeletable(index)) {
       final List<T> lst = List.from(items);
       lst.removeAt(index);
-      if (getIsSelectable(index - 1)) {
-        return copyWith(items: lst, currentIndex: index - 1);
-      } else {
-        return copyWith(items: lst, currentIndex: index);
-      }
+      return right(
+        copyWith(
+          currentIndex: currentIndex > index ? currentIndex - 1 : currentIndex,
+          items: lst,
+        ),
+      );
+    } else {
+      return left(
+        SeletableItemsFailure.indexOutOfRange(index, length),
+      );
     }
-    return this;
   }
 
   /// modifies the item at the [index] to the [newValue]
-  SelectableItems<T> modifyAt(int index, T newValue) {
-    assert(
-      getIsSelectable(index),
-      "Invalid index $index with items of length: ${items.length}",
+  Either<SeletableItemsFailure, SelectableItems<T>> modify(
+      int index, T newValue) {
+    if (isSeletable(index)) {
+      final List<T> lst = List.from(items);
+      lst[index] = newValue;
+      return right(
+        copyWith(
+          items: lst,
+        ),
+      );
+    } else {
+      return left(
+        SeletableItemsFailure.indexOutOfRange(index, length),
+      );
+    }
+  }
+
+  /// map the items to a new list
+  SelectableItems<R> map<R>(R Function(T) f) {
+    return SelectableItems(
+      currentIndex: currentIndex,
+      items: items.map(f).toList(),
+      minItems: minItems,
+      maxItems: maxItems,
     );
-    final List<T> lst = List.from(items);
-    lst[index] = newValue;
-    return copyWith(items: lst, currentIndex: index);
+  }
+
+  /// map the items with index and value
+  List<R> mapIndexed<R>(R Function(int, T) f) {
+    return items.asMap().entries.map((e) => f(e.key, e.value)).toList();
+  }
+
+  /// for each item in the list
+  void forEach(void Function(T) f) {
+    items.forEach(f);
   }
 }

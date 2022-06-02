@@ -5,4 +5,4 @@ library selectable_items;
 
 export 'src/seletable_items_base.dart';
 
-// TODO: Export any libraries intended for clients of this package.
+export 'src/selectable_item_failures.dart';
