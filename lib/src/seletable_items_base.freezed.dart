@@ -20,6 +20,9 @@ mixin _$SelectableItems<T> {
   List<T> get items => throw _privateConstructorUsedError;
   int? get minItems => throw _privateConstructorUsedError;
   int? get maxItems => throw _privateConstructorUsedError;
+  T? get maxValue => throw _privateConstructorUsedError;
+  T? get minValue => throw _privateConstructorUsedError;
+  int Function(T, T)? get compare => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $SelectableItemsCopyWith<T, SelectableItems<T>> get copyWith =>
@@ -31,7 +34,14 @@ abstract class $SelectableItemsCopyWith<T, $Res> {
   factory $SelectableItemsCopyWith(
           SelectableItems<T> value, $Res Function(SelectableItems<T>) then) =
       _$SelectableItemsCopyWithImpl<T, $Res>;
-  $Res call({int currentIndex, List<T> items, int? minItems, int? maxItems});
+  $Res call(
+      {int currentIndex,
+      List<T> items,
+      int? minItems,
+      int? maxItems,
+      T? maxValue,
+      T? minValue,
+      int Function(T, T)? compare});
 }
 
 /// @nodoc
@@ -49,6 +59,9 @@ class _$SelectableItemsCopyWithImpl<T, $Res>
     Object? items = freezed,
     Object? minItems = freezed,
     Object? maxItems = freezed,
+    Object? maxValue = freezed,
+    Object? minValue = freezed,
+    Object? compare = freezed,
   }) {
     return _then(_value.copyWith(
       currentIndex: currentIndex == freezed
@@ -67,6 +80,18 @@ class _$SelectableItemsCopyWithImpl<T, $Res>
           ? _value.maxItems
           : maxItems // ignore: cast_nullable_to_non_nullable
               as int?,
+      maxValue: maxValue == freezed
+          ? _value.maxValue
+          : maxValue // ignore: cast_nullable_to_non_nullable
+              as T?,
+      minValue: minValue == freezed
+          ? _value.minValue
+          : minValue // ignore: cast_nullable_to_non_nullable
+              as T?,
+      compare: compare == freezed
+          ? _value.compare
+          : compare // ignore: cast_nullable_to_non_nullable
+              as int Function(T, T)?,
     ));
   }
 }
@@ -78,7 +103,14 @@ abstract class _$$_SelectableItemsCopyWith<T, $Res>
           $Res Function(_$_SelectableItems<T>) then) =
       __$$_SelectableItemsCopyWithImpl<T, $Res>;
   @override
-  $Res call({int currentIndex, List<T> items, int? minItems, int? maxItems});
+  $Res call(
+      {int currentIndex,
+      List<T> items,
+      int? minItems,
+      int? maxItems,
+      T? maxValue,
+      T? minValue,
+      int Function(T, T)? compare});
 }
 
 /// @nodoc
@@ -98,6 +130,9 @@ class __$$_SelectableItemsCopyWithImpl<T, $Res>
     Object? items = freezed,
     Object? minItems = freezed,
     Object? maxItems = freezed,
+    Object? maxValue = freezed,
+    Object? minValue = freezed,
+    Object? compare = freezed,
   }) {
     return _then(_$_SelectableItems<T>(
       currentIndex: currentIndex == freezed
@@ -116,6 +151,18 @@ class __$$_SelectableItemsCopyWithImpl<T, $Res>
           ? _value.maxItems
           : maxItems // ignore: cast_nullable_to_non_nullable
               as int?,
+      maxValue: maxValue == freezed
+          ? _value.maxValue
+          : maxValue // ignore: cast_nullable_to_non_nullable
+              as T?,
+      minValue: minValue == freezed
+          ? _value.minValue
+          : minValue // ignore: cast_nullable_to_non_nullable
+              as T?,
+      compare: compare == freezed
+          ? _value.compare
+          : compare // ignore: cast_nullable_to_non_nullable
+              as int Function(T, T)?,
     ));
   }
 }
@@ -127,7 +174,10 @@ class _$_SelectableItems<T> implements _SelectableItems<T> {
       {required this.currentIndex,
       required final List<T> items,
       this.minItems,
-      this.maxItems})
+      this.maxItems,
+      this.maxValue,
+      this.minValue,
+      this.compare})
       : _items = items;
 
   @override
@@ -143,10 +193,16 @@ class _$_SelectableItems<T> implements _SelectableItems<T> {
   final int? minItems;
   @override
   final int? maxItems;
+  @override
+  final T? maxValue;
+  @override
+  final T? minValue;
+  @override
+  final int Function(T, T)? compare;
 
   @override
   String toString() {
-    return 'SelectableItems<$T>(currentIndex: $currentIndex, items: $items, minItems: $minItems, maxItems: $maxItems)';
+    return 'SelectableItems<$T>(currentIndex: $currentIndex, items: $items, minItems: $minItems, maxItems: $maxItems, maxValue: $maxValue, minValue: $minValue, compare: $compare)';
   }
 
   @override
@@ -158,7 +214,10 @@ class _$_SelectableItems<T> implements _SelectableItems<T> {
                 .equals(other.currentIndex, currentIndex) &&
             const DeepCollectionEquality().equals(other._items, _items) &&
             const DeepCollectionEquality().equals(other.minItems, minItems) &&
-            const DeepCollectionEquality().equals(other.maxItems, maxItems));
+            const DeepCollectionEquality().equals(other.maxItems, maxItems) &&
+            const DeepCollectionEquality().equals(other.maxValue, maxValue) &&
+            const DeepCollectionEquality().equals(other.minValue, minValue) &&
+            (identical(other.compare, compare) || other.compare == compare));
   }
 
   @override
@@ -167,7 +226,10 @@ class _$_SelectableItems<T> implements _SelectableItems<T> {
       const DeepCollectionEquality().hash(currentIndex),
       const DeepCollectionEquality().hash(_items),
       const DeepCollectionEquality().hash(minItems),
-      const DeepCollectionEquality().hash(maxItems));
+      const DeepCollectionEquality().hash(maxItems),
+      const DeepCollectionEquality().hash(maxValue),
+      const DeepCollectionEquality().hash(minValue),
+      compare);
 
   @JsonKey(ignore: true)
   @override
@@ -181,7 +243,10 @@ abstract class _SelectableItems<T> implements SelectableItems<T> {
       {required final int currentIndex,
       required final List<T> items,
       final int? minItems,
-      final int? maxItems}) = _$_SelectableItems<T>;
+      final int? maxItems,
+      final T? maxValue,
+      final T? minValue,
+      final int Function(T, T)? compare}) = _$_SelectableItems<T>;
 
   @override
   int get currentIndex => throw _privateConstructorUsedError;
@@ -191,6 +256,12 @@ abstract class _SelectableItems<T> implements SelectableItems<T> {
   int? get minItems => throw _privateConstructorUsedError;
   @override
   int? get maxItems => throw _privateConstructorUsedError;
+  @override
+  T? get maxValue => throw _privateConstructorUsedError;
+  @override
+  T? get minValue => throw _privateConstructorUsedError;
+  @override
+  int Function(T, T)? get compare => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$$_SelectableItemsCopyWith<T, _$_SelectableItems<T>> get copyWith =>

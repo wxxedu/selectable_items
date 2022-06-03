@@ -10,6 +10,9 @@ class SelectableItems<T> with _$SelectableItems<T> {
     required List<T> items,
     int? minItems,
     int? maxItems,
+    T? maxValue,
+    T? minValue,
+    int Function(T, T)? compare,
   }) = _SelectableItems<T>;
 }
 
@@ -74,8 +77,26 @@ extension SelectableItemsX<T> on SelectableItems<T> {
     }
   }
 
+  SeletableItemsFailure? valueIsValid(T value) {
+    if (maxValue != null && compare != null) {
+      if (compare!(maxValue!, value) >= 0) {
+        return SeletableItemsFailure.valueTooBig(maxValue: maxValue);
+      }
+    }
+    if (minValue != null && compare != null) {
+      if (compare!(value, minValue!) >= 0) {
+        return SeletableItemsFailure.valueTooSmall(minValue: minValue);
+      }
+    }
+    return null;
+  }
+
   /// adds an [item] to the items list
   Either<SeletableItemsFailure, SelectableItems<T>> add(T item) {
+    final failure = valueIsValid(item);
+    if (failure != null) {
+      return left(failure);
+    }
     if (isAddable) {
       return right(
         copyWith(
@@ -94,6 +115,11 @@ extension SelectableItemsX<T> on SelectableItems<T> {
   /// also updates the [currentIndex] to match be the item of the newly inserted text.
   Either<SeletableItemsFailure, SelectableItems<T>> insert(T item,
       {int? index}) {
+    final failure = valueIsValid(item);
+    if (failure != null) {
+      return left(failure);
+    }
+
     // if the list is currently full, we should return a failure
     if (!isAddable) {
       return left(
