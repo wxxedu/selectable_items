@@ -1,6 +1,3 @@
-/// Checks if you are awesome. Spoiler: you are.
-import 'dart:collection';
-
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:selectable_items/selectable_items.dart';
@@ -17,12 +14,19 @@ class SelectableItems<T> with _$SelectableItems<T> {
 }
 
 extension SelectableItemsX<T> on SelectableItems<T> {
-  /// the currently selected item
-  Either<SeletableItemsFailure, T> get selected => isSeletable(currentIndex)
-      ? right(items[currentIndex])
-      : left(
-          SeletableItemsFailure.indexOutOfRange(currentIndex, length),
-        );
+  /// the current item
+  T? get selected => selectedOrFailure.fold(
+        (l) => null,
+        (r) => r,
+      );
+
+  /// the currently selected item or [SelectableItemsFailure] if encountered error
+  Either<SeletableItemsFailure, T> get selectedOrFailure =>
+      isSeletable(currentIndex)
+          ? right(items[currentIndex])
+          : left(
+              SeletableItemsFailure.indexOutOfRange(currentIndex, length),
+            );
 
   /// returns the length of the items
   int get length => items.length;
@@ -43,8 +47,12 @@ extension SelectableItemsX<T> on SelectableItems<T> {
     return isSeletable(index) && index == currentIndex;
   }
 
+  T? get(int index) {
+    return getOrFail(index).fold((l) => null, (r) => r);
+  }
+
   /// gets the item at [index]
-  Either<SeletableItemsFailure, T> get(int index) {
+  Either<SeletableItemsFailure, T> getOrFail(int index) {
     if (isSeletable(index)) {
       return right(
         items[index],
