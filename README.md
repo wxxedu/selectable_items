@@ -17,6 +17,8 @@ and the Flutter guide for
 
 N / A
 
+This package is deprecated.
+
 ## Getting started
 
 This package depends on the [freezed and freezed_annotation](https://pub.dev/packages/freezed) package. 
